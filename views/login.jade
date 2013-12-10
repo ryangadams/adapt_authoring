@@ -1,12 +1,7 @@
-doctype 5
-html
+extends layout
 
-    head
-        title Adapt Builder
-    body
-        h1 Adapt Builder: Login
-
-        #app
+block main_content
+    #login
         form(method="post",action="/login")
             p
                 label(for="email") Email
@@ -16,3 +11,4 @@ html
                 input(name="password", type="password")
             p
                 button(type="submit") Login
+            pre.what login.jade

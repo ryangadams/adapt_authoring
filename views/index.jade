@@ -1,10 +1,6 @@
-doctype 5
-html
+extends layout
 
-    head
-        title Adapt Builder
-    body
-        h1 Adapt Builder
-        #nav!= nav
-
-        #app!= appContents
+block main_content
+    != welcome
+    != projects
+    pre.what index.jade

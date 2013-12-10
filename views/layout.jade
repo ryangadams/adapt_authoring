@@ -1,0 +1,13 @@
+doctype 5
+html
+
+    head
+        title= page_title
+        link(rel='stylesheet', href='assets/styles.css')
+        block head
+    body
+        h1 Adapt Builder
+        #nav!= nav
+
+        #app
+            block main_content

@@ -2,7 +2,7 @@ var builder = require('./lib/application'),
     logger = require('./lib/logger'),
     winston = require('winston');
 
-var app = builder();
+app = builder();
 app.start();
 
 // add a route to quickly set up an admin user.
@@ -10,6 +10,7 @@ app.start();
 // a proper install script!!!
 app.once('serverStarted', function (server) {
   require('./lib/permissions').ignoreRoute(/^\/install\/?$/);
+  require('./lib/routes');
   app.get('/install', function (req, res, next) {
     var userObj = {
       email: 'admin',

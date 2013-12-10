@@ -61,17 +61,15 @@ LocalAuth.prototype.authenticate = function (req, res, next) {
     if (!user) {
       res.statusCode = 401;
       res.json({ success: false });
-      return res.end();
+      return res;
     }
 
     req.logIn(user, function (error) {
       if (error) {
         return next(error);
       }
-
-      res.statusCode = 200;
-      res.json({ success: true });
-      return res.end();
+      res.cookie('user', user, { maxAge: 900000 });
+      next(user);
     });
   })(req, res, next);
 };

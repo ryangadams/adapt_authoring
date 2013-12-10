@@ -1,0 +1,18 @@
+doctype 5
+html
+
+    head
+        title Adapt Builder
+    body
+        h1 Adapt Builder: Login
+
+        #app
+        form(method="post",action="/login")
+            p
+                label(for="email") Email
+                input(name="email",type="text")
+            p
+                label(for="password") Password
+                input(name="password", type="password")
+            p
+                button(type="submit") Login

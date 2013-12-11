@@ -68,7 +68,6 @@ LocalAuth.prototype.authenticate = function (req, res, next) {
       if (error) {
         return next(error);
       }
-      res.cookie('user', user, { maxAge: 900000 });
       next(user);
     });
   })(req, res, next);

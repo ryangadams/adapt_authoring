@@ -85,14 +85,21 @@ var steps = function () {
     });
   });
 
-  this.When(/^I enter a name of "([^"]*)"$/, function(arg1, callback) {
-    // express the regexp above with the code you wish you had
-    callback.pending();
+  this.When(/^I enter a name of "([^"]*)"$/, function(courseName, next) {
+    var browser = this.browser;
+    globalCourseName = courseName;
+    browser.fill("coursename", courseName)
+      .pressButton("Create Course", function () {
+        browser.wait(next);
+      });
   });
 
-  this.Then(/^the course appears in my course listing$/, function(callback) {
+  this.Then(/^the course appears in my course listing$/, function(next) {
     // express the regexp above with the code you wish you had
-    callback.pending();
+    var browser = this.browser;
+    this.visit(pages["User Dashboard"], function (callback) {
+      browser.text("#courses .course-list li:first-child").should.include(globalCourseName);
+    });
   });
 
 

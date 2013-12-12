@@ -1,10 +1,10 @@
 Feature: Browsing & Creating Courses
 
-  Scenario: Quick view of courses, none available
-    Given I am logged in as "nocourses"
-    When I go to the "User Dashboard"
-    And I have no courses available
-    Then I see "You have no courses"
+#  Scenario: Quick view of courses, none available
+#    Given I am logged in as "nocourses"
+#    When I go to the "User Dashboard"
+#    And I have no courses available
+#    Then I see "You have no courses"
 
   Scenario: Adding a new course
     Given I am logged in as "admin"

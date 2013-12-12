@@ -1,7 +1,10 @@
 #courses
     h2 Courses
-    -if (projects)
-        p Your courses go here
+    -if (courses)
+        ul.course-list
+            - for (i=0;i<courses.length;i++)
+                li
+                    a(href="/courses/" + courses[i]._id)= courses[i].name
     -else
         p You have no courses
     p

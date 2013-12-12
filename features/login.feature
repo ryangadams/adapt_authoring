@@ -9,6 +9,6 @@ Feature: Logging In
 
   Scenario: Logging In
     When I go to the "Login page"
-    And I login
+    And I log in as "admin" with password "password"
     Then I am redirected to my dashboard
-    And I see the login greeting
+    And I see "Hello admin"

@@ -2,5 +2,7 @@ extends layout
 block main_content
     #course
         h2= course.name
+        p   Last Updated:
+            = course.last_updated
 
     pre.what course-view.jade

@@ -1,6 +1,6 @@
 #courses
     h2 Courses
-    -if (courses)
+    -if (courses && courses.length > 0)
         ul.course-list
             - for (i=0;i<courses.length;i++)
                 li

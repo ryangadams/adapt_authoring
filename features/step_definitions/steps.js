@@ -10,6 +10,8 @@ var steps = function () {
   logins.nocourses = "password";
   logins.admin = "password";
 
+  var globalCourseName;
+
   this.Given(/^I am logged in as "([^"]*)"$/, function (username, next) {
     // express the regexp above with the code you wish you had
     var b = this.browser;
@@ -98,10 +100,18 @@ var steps = function () {
     // express the regexp above with the code you wish you had
     var browser = this.browser;
     this.visit(pages["User Dashboard"], function (callback) {
-      browser.text("#courses .course-list li:first-child").should.include(globalCourseName);
+      if(browser.text("#courses .course-list li:first-child").should.include(globalCourseName)) {
+        next();
+      } else {
+        next.fail();
+      }
     });
   });
 
+  this.Then(/^I see the course overview$/, function(callback) {
+    // express the regexp above with the code you wish you had
+    callback.pending();
+  });
 
 };
 

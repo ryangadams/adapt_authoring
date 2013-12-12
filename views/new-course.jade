@@ -1,0 +1,11 @@
+extends layout
+
+block main_content
+    #course
+        form(method="post",action="/courses")
+            p
+                label(for="coursename") Course Name
+                input(name="coursename",type="text")
+            p
+                button(type="submit") Create Course
+            pre.what new-course.jade

@@ -100,7 +100,7 @@ var steps = function () {
     // express the regexp above with the code you wish you had
     var browser = this.browser;
     this.visit(pages["User Dashboard"], function (callback) {
-      if(browser.text("#courses .course-list li:first-child").should.include(globalCourseName)) {
+      if(browser.text("#courses .course-list li:last-child").should.include(globalCourseName)) {
         next();
       } else {
         next.fail();
@@ -108,9 +108,13 @@ var steps = function () {
     });
   });
 
-  this.Then(/^I see the course overview$/, function(callback) {
+  this.Then(/^I see the course overview$/, function(next) {
     // express the regexp above with the code you wish you had
-    callback.pending();
+    if (this.browser.text("#course h2").should.include(globalCourseName)) {
+      next();
+    } else {
+      next.fail();
+    }
   });
 
 };

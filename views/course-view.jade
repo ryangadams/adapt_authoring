@@ -4,5 +4,6 @@ block main_content
         h2= course.name
         p   Last Updated:
             = course.last_updated
-
+        form(method="post", action="/content-object")
+            button(type="submit") Add Content Object
     pre.what course-view.jade

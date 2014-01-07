@@ -5,6 +5,7 @@ var steps = function () {
   pages["Authoring Tool homepage"] = "/";
   pages["Login page"] = "/login";
   pages["User Dashboard"] = "/";
+  pages["Course Fred"] = "/courses/52ab289e7445e0978d000001";
 
   var logins = {};
   logins.nocourses = "password";
@@ -114,6 +115,21 @@ var steps = function () {
       next();
     } else {
       next.fail();
+    }
+  });
+
+  this.When(/^I view the course "([^"]*)"$/, function(courseName, next) {
+    // express the regexp above with the code you wish you had
+    this.visit(pages["Course " + courseName], function (callback) {
+      next();
+    });
+  });
+
+  this.Then(/^I can add a "([^"]*)"$/, function(contentObjectType, next) {
+    if (contentObjectType === "content object") {
+      this.browser.pressButton("Add Content Object", function () {
+        browser.wait(next);
+      });
     }
   });
 

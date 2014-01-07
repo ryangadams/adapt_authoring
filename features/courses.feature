@@ -12,3 +12,8 @@ Feature: Browsing & Creating Courses
     When I go to the "User Dashboard"
     And I click "Test Course"
     Then I see the course overview
+
+  Scenario: Adding to a course
+    Given I am logged in as "admin"
+    When I view the course "Fred"
+    Then I can add a "content object"

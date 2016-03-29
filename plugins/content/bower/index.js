@@ -199,6 +199,19 @@ function initialize () {
   app.once('serverStarted', function (server) {
     // add plugin upload route
     rest.post('/upload/contentplugin', handleUploadedPlugin);
+
+    rest.get('/components/resync/:id', function(req, res, next) {
+
+      var pluginId = req.param('id');
+      var tenantId = usermanager.getCurrentUser().tenant._id;
+      var outputPath = path.join(configuration.tempDir, tenantId, 'adapt_framework', 'src', 'components');
+      var canonicalDir = path.join(outputPath, pluginId);
+      var bowerPath = path.join(outputPath, pluginId, 'bower.json');
+      // force a reload of the config data
+      delete require.cache[bowerPath];
+      var packageJson = require(bowerPath);
+      return processPluginAndReturnResponseOrCallback(packageJson, canonicalDir, res, next);
+    });
   });
 }
 
@@ -595,20 +608,23 @@ function addPackage (plugin, packageInfo, options, cb) {
               );
 
               // remove older version first
-              rimraf(tenantPluginPath, function (err) {
-                if (err) {
-                  return logger.log('error', err);
-                }
+              if (tenantPluginPath !== packageInfo.canonicalDir) {
 
-                ncp(packageInfo.canonicalDir, tenantPluginPath, function (err) {
+                rimraf(tenantPluginPath, function (err) {
                   if (err) {
                     return logger.log('error', err);
                   }
 
-                  // done
-                  logger.log('info', 'Successfully copied ' + pkgMeta.name + ' to tenant ' + tenantPluginPath);
+                  ncp(packageInfo.canonicalDir, tenantPluginPath, function (err) {
+                    if (err) {
+                      return logger.log('error', err);
+                    }
+
+                    // done
+                    logger.log('info', 'Successfully copied ' + pkgMeta.name + ' to tenant ' + tenantPluginPath);
+                  });
                 });
-              });
+              }
             });
           });
         });
@@ -854,6 +870,47 @@ function checkIfHigherVersionExists (package, options, cb) {
 
 }
 
+function processPluginAndReturnResponseOrCallback(packageJson, canonicalDir, res, next) {
+  if (!packageJson) {
+    return next(new PluginPackageError('Unrecognized plugin - a plugin should have a bower.json file'));
+  }
+
+  // extract the plugin type from the package
+  var pluginType = extractPluginType(packageJson);
+  if (!pluginType) {
+    return next(new PluginPackageError('Unrecognized plugin type for package ' + packageJson.name));
+  }
+
+  // mark as a locally installed package
+  packageJson.isLocalPackage = true;
+
+  // construct packageInfo
+  var packageInfo = {
+    canonicalDir: canonicalDir,
+    pkgMeta: packageJson
+  };
+
+  // Check if the framework has been defined on the plugin and that it's not compatible
+  if (packageInfo.pkgMeta.framework && !semver.satisfies(semver.clean(version.adapt_framework), packageInfo.pkgMeta.framework)) {
+    return next(new PluginPackageError('This plugin is incompatible with version ' + version.adapt_framework + ' of the Adapt framework'));
+  }
+
+  app.contentmanager.getContentPlugin(pluginType, function (error, contentPlugin) {
+    if (error) {
+      return next(error);
+    }
+
+    addPackage(contentPlugin.bowerConfig, packageInfo, { strict: true }, function (error, results) {
+      if (error) {
+        return next(error);
+      }
+
+      res.statusCode = 200;
+      return res.json({ success: true, pluginType: pluginType, message: 'successfully added new plugin' });
+    });
+  });
+}
+
 /**
  * handles uploaded plugins
  *
@@ -917,44 +974,8 @@ function handleUploadedPlugin (req, res, next) {
               return next(new PluginPackageError('Cannot find expected bower.json file in the plugin root, please check the structure of your zip file and try again.'));
             }
 
-            if (!packageJson) {
-              return next(new PluginPackageError('Unrecognized plugin - a plugin should have a bower.json file'));
-            }
+            return processPluginAndReturnResponseOrCallback(packageJson, canonicalDir, res, next);
 
-            // extract the plugin type from the package
-            var pluginType = extractPluginType(packageJson);
-            if (!pluginType) {
-              return next(new PluginPackageError('Unrecognized plugin type for package ' + packageJson.name));
-            }
-
-            // mark as a locally installed package
-            packageJson.isLocalPackage = true;
-
-            // construct packageInfo
-            var packageInfo = {
-              canonicalDir: canonicalDir,
-              pkgMeta: packageJson
-            };
-
-            // Check if the framework has been defined on the plugin and that it's not compatible
-            if (packageInfo.pkgMeta.framework && !semver.satisfies(semver.clean(version.adapt_framework), packageInfo.pkgMeta.framework)) {
-              return next(new PluginPackageError('This plugin is incompatible with version ' + version.adapt_framework + ' of the Adapt framework'));
-            }
-
-            app.contentmanager.getContentPlugin(pluginType, function (error, contentPlugin) {
-              if (error) {
-                return next(error);
-              }
-
-              addPackage(contentPlugin.bowerConfig, packageInfo, { strict: true }, function (error, results) {
-                if (error) {
-                  return next(error);
-                }
-
-                res.statusCode = 200;
-                return res.json({ success: true, pluginType: pluginType, message: 'successfully added new plugin' });
-              });
-            });
 
           });
 
